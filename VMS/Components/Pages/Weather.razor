@@ -1,9 +1,7 @@
 ﻿@page "/weather"
 @using MudBlazor
-@rendermode InteractiveServer
-@inject ILogger<Weather> Logger
 
-<PageTitle>Weather Data</PageTitle>
+
 
 @* Required *@
 <MudThemeProvider />
@@ -15,139 +13,37 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-<h1>Weather</h1>
+<PageTitle>Weather Forecast</PageTitle>
 
-<p>This component demonstrates showing data.</p>
-<p>Forecast count: @_forecasts.Length</p>
-<p>I am table</p>
-<p>Searching: @_searchString</p>
-<p>Matching rows: @filteredForecasts.Count()</p>
-<p>Table is @(_table is null ? "❌ not working" : "✅ ready")</p>
+<h1>Weather Forecast</h1>
 
-
-@if (_forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-     <MudTextField T="string"
-                  @bind-value="_searchString"
-                  Placeholder="Click me and search me!"
-                  Adornment="Adornment.Start"
-                  AdornmentIcon="@Icons.Material.Filled.Search"
-                  Variant="Variant.Outlined"
-                  Clearable="true"
-                  Immediate="true"
-                  Class="mb-4" />
-
-    <MudButton OnClick="GenerateForecasts">Reload Table</MudButton>
-
-    <MudTable T="WeatherForecast" 
-        @ref="_table"
-        Filter="new Func<WeatherForecast, bool>(FilterFunction1)"
-        Items="@_forecasts"
-        Hover="true" 
-        SortLabel="Sort By"            
-        RowsPerPage="10"
-        Elevation="1">
-
-        <HeaderContent>
-            <MudTh>Date
-                <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<WeatherForecast, object>(x => x.Date)"></MudTableSortLabel>
-                </MudTh>
-            <MudTh>Temp. (C)
-                <MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.TemperatureC)"></MudTableSortLabel>
-                </MudTh>
-            <MudTh>Temp. (F)
-                <MudTableSortLabel SortBy="new Func<WeatherForecast, object>(x=>x.TemperatureF)"></MudTableSortLabel>
-                </MudTh>
-            <MudTh>Summary
-                <MudTableSortLabel T="WeatherForecast" SortBy="x => x.Summary ?? string.Empty"></MudTableSortLabel>
-                </MudTh>
-        </HeaderContent>
-
-        <RowTemplate>
-            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-            <MudTd DataLabel="TemperatureC">@context.TemperatureC</MudTd>
-            <MudTd DataLabel="TemperatureF">@context.TemperatureF</MudTd>
-            <MudTd DataLabel="Summary">@context.Summary</MudTd>
-        </RowTemplate>
-        <NoRecordsContent>
-			<MudText Color="Color.Error">No records found.</MudText>
-        </NoRecordsContent>
-        <PagerContent>
-            <MudTablePager PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
-        </PagerContent>
-    </MudTable>
-
-}
+<MudTable Items="_data" Dense="true" Hover="true" Elevation="1">
+    <HeaderContent>
+        <MudTh>Date</MudTh>
+        <MudTh>Temp (°C)</MudTh>
+        <MudTh>Summary</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Date.ToString("yyyy-MM-dd")</MudTd>
+        <MudTd>@context.TemperatureC</MudTd>
+        <MudTd>@context.Summary</MudTd>
+    </RowTemplate>
+</MudTable>
 
 @code {
-
-    private IEnumerable<WeatherForecast> filteredForecasts => string.IsNullOrWhiteSpace(_searchString)
-        ? _forecasts
-        : _forecasts.Where(f =>
-            (f.Summary ?? "").Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
-            f.TemperatureC.ToString().Contains(_searchString) ||
-            f.TemperatureF.ToString().Contains(_searchString) ||
-            f.Date.ToString().Contains(_searchString));
-
-    private MudTable<WeatherForecast>? _table;
-
-    private bool FilterFunction1(WeatherForecast forecast) => FilterFunction2(forecast, _searchString);
-
-    private bool FilterFunction2(WeatherForecast forecast, string searchString)
+    private Forecast[] _data = new[]
     {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (forecast.Date.ToShortDateString().Contains(searchString))
-            return true;
-        if (forecast.TemperatureC.ToString().Contains(searchString))
-            return true;
-        if (forecast.TemperatureF.ToString().Contains(searchString))
-            return true;
-        if (forecast.Summary!.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    }
+        new Forecast { Date = new DateOnly(2025,10,01), TemperatureC = 22, Summary = "Mild" },
+        new Forecast { Date = new DateOnly(2025,10,02), TemperatureC = 18, Summary = "Cool" },
+        new Forecast { Date = new DateOnly(2025,10,03), TemperatureC = 25, Summary = "Warm" },
+        new Forecast { Date = new DateOnly(2025,10,04), TemperatureC = 27, Summary = "Sunny" },
+        new Forecast { Date = new DateOnly(2025,10,05), TemperatureC = 16, Summary = "Breezy" }
+    };
 
-    private WeatherForecast[] _forecasts = Array.Empty<WeatherForecast>();
-    private string _searchString= string.Empty;
-
-    protected override void OnInitialized()
-    {
-        System.Diagnostics.Debug.WriteLine("✅ Blazor is alive!");
-
-        GenerateForecasts();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (_table != null)
-        {
-            StateHasChanged();
-        }
-    }
-
-    private void GenerateForecasts()
-    {
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-
-        _forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
-    }
-
-    public class WeatherForecast
+    public class Forecast
     {
         public DateOnly Date { get; set; }
         public int TemperatureC { get; set; }
         public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 }
