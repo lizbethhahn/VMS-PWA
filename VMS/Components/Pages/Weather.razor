@@ -122,12 +122,10 @@ else
         GenerateForecasts();
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_table != null)
-        {
-            StateHasChanged();
-        }
+    	if (!firstRender) return;
+    	await InvokeAsync(StateHasChanged); // one post-first-render pass, then stop
     }
 
     private void GenerateForecasts()
