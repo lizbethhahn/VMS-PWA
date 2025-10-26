@@ -1,30 +1,43 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<!-- VMS WASM INDEX :: stamp=26 -->
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <base href="/" />
 
     <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#121212" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png" />
 
-    <!-- Your styles -->
+    <!-- Styles -->
+    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
     <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="VMS.styles.css" />
-    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="/VMS.styles.css" rel="stylesheet" />
 
-    <title>VMS</title>
+    <title>Volunteer Management System </title>
 </head>
 <body>
-    <div id="app"></div>
+    <!-- Blazor mounts here -->
+    <div id="app">Loading…</div>
 
-    <!-- VMS WASM INDEX :: stamp=27 -->
-    <!-- Blazor WASM runtime -->
+    <!-- MudBlazor JS (only if you use its JS features; otherwise safe to keep) -->
+    <script src="_content/MudBlazor/MudBlazor.min.js" defer></script>
+
+    <!-- Blazor boot -->
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 
-    <!-- (optional) your SW register if you want it to run now -->
-    <script src="/sw-register.js"></script>
+    <!-- Service worker registration -->
+    <script>
+        if ('serviceWorker' in navigator && window.isSecureContext) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' });
+            });
+        }
+    </script>
 </body>
 </html>
