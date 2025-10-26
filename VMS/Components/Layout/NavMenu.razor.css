@@ -81,6 +81,10 @@
     color: white;
 }
 
+.navbar-brand {
+    color: #C8A2C8 !important; /* lilac */
+}
+
 .nav-scrollable {
     display: none;
 }
