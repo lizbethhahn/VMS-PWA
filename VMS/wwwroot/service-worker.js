@@ -1,4 +1,4 @@
-﻿const VERSION = 'v11';
+﻿const VERSION = 'v33';
 const CACHE_NAME = `vms-cache-${VERSION}`;
 console.log(`[SW] Boot ${VERSION}`);
 
