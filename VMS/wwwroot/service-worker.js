@@ -1,75 +1,109 @@
-﻿const VERSION = 'v33';
+﻿const VERSION = 'v42';  // Increment version to trigger an update
 const CACHE_NAME = `vms-cache-${VERSION}`;
+const CACHE_PREFIX = 'vms-cache-';   // for cleanup
 console.log(`[SW] Boot ${VERSION}`);
 
-/** @type {string[]} */
-const PRECACHE_URLS = [
-    "/offline-test-page.html",
-    "/favicon.png",  
-    "/manifest.webmanifest",
-    "/icons/icon-192.png",
-    "/icons/icon-512.png"
-];
-
-// INSTALL: precache and take control
 self.addEventListener('install', (event) => {
-    self.skipWaiting();
-    event.waitUntil((async () => {
-        const cache = await caches.open(CACHE_NAME);          
-        await cache.addAll(PRECACHE_URLS);                  
-    })());
+    console.log(`[SW] install ${VERSION}`);
+   
+    event.waitUntil(
+        (async () => {
+            const c = await caches.open(CACHE_NAME);
+            await c.addAll([
+                '/manifest.webmanifest',
+                '/favicon.png',
+                '/icons/icon-192.png',
+                '/icons/icon-512.png',
+                '/offline-test-page.html',
+                '/app.css',
+                '/VMS.styles.css'
+            ]);
+            self.skipWaiting();
+        })()
+    );
 });
 
-// ACTIVATE: clean old caches, enable preload, claim clients
 self.addEventListener('activate', (event) => {
-    event.waitUntil((async () => {
-        const names = await caches.keys();
-        await Promise.all(
-            names.map(n => (n === CACHE_NAME ? Promise.resolve() : caches.delete(n)))
-        );
-        if (self.registration.navigationPreload) {
-            await self.registration.navigationPreload.enable();
-        }
-        await self.clients.claim();
-        console.log('Service Worker: Active');
-    })());
+    console.log(`[SW] activate ${VERSION}`);
+    event.waitUntil(
+        (async () => {
+            // Clean old caches
+            const keys = await caches.keys();
+            await Promise.all(
+                keys
+                    .filter(k => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME)
+                    .map(k => caches.delete(k))
+            );
+            await self.clients.claim(); 
+        })()
+    );
 });
 
-/** @param {FetchEvent} event */
+// Helpers
+async function networkFirst(req) {
+    try {
+        const fresh = await fetch(req, { cache: 'no-store' });
+        // Update cache in background
+        const c = await caches.open(CACHE_NAME);
+        c.put(req, fresh.clone());
+        return fresh;
+    } catch {
+        const cached = await caches.match(req);
+        if (cached) return cached;
+        // As a last resort for navigation requests, try the offline page
+        if (req.mode === 'navigate') {
+            const offline = await caches.match('/offline-test-page.html');
+            if (offline) return offline;
+        }
+        throw new Error('NetworkFirst: no network and no cache');
+    }
+}
+
+async function cacheFirst(req) {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    const fresh = await fetch(req);
+    const c = await caches.open(CACHE_NAME);
+    c.put(req, fresh.clone());
+    return fresh;
+}
+
 self.addEventListener('fetch', (event) => {
-    // 1) Offline fallback for favicon.ico (serve cached PNG)
     const url = new URL(event.request.url);
-    if (url.pathname === '/favicon.ico') {
-        event.respondWith((async () => {
-            try {
-                // try network first
-                return await fetch(event.request);
-            } catch {
-                // offline: serve cached PNG as a stand-in
-                const cache = await caches.open(CACHE_NAME); 
-                const png = await cache.match('/favicon.png');
-                if (png) {
-                    const blob = await png.blob();
-                    return new Response(blob, { headers: { 'Content-Type': 'image/png' } });
-                }
-                return Response.error();
-            }
-        })());
+
+    if (url.origin !== location.origin) return;
+
+    // Always prefer server for the app shell entry and boot manifest
+    if (url.pathname === '/' ||
+        url.pathname.endsWith('/index.html') ||
+        url.pathname.endsWith('/_framework/blazor.boot.json')) {
+        event.respondWith(networkFirst(event.request));
         return;
     }
 
-    // 2) Your existing NAVIGATION handler (unchanged)
-    if (event.request.mode !== 'navigate') return;
+    // Framework & critical assets → network-first to avoid SRI mismatches on new builds
+    if (url.pathname.startsWith('/_framework/') ||
+        url.pathname.endsWith('.dll') ||
+        url.pathname.endsWith('.wasm') ||
+        url.pathname.endsWith('.pdb')
+    ) {
+        event.respondWith(networkFirst(event.request));
+        return;
+    }
 
-    event.respondWith((async () => {
-        try {
-            const preload = await event.preloadResponse;
-            if (preload) return preload;
-            const resp = await fetch(event.request);
-            if (resp && resp.ok) return resp;
-        } catch { }
-        const cache = await caches.open(CACHE_NAME);
-        const offline = await cache.match('/offline-test-page.html');
-        return offline || new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
-    })());
+    // Other static assets → cache-first
+    if (url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.svg') ||
+        url.pathname.endsWith('.webp')) {
+        event.respondWith(cacheFirst(event.request));
+        return;
+    }
+
+    // Default: try cache-first for same-origin GETs; fall back to network
+    if (event.request.method === 'GET') {
+        event.respondWith(cacheFirst(event.request));
+    }
 });

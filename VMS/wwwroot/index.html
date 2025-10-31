@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Volunteer Management System </title>
+    <title>Volunteer Management System 2.0 </title>
     <base href="/" />
 
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -20,20 +20,15 @@
     <link rel="stylesheet" href="/VMS.styles.css" />
 </head>
 <body>
-    <!-- Blazor mounts here -->
     <div id="app">Loading…</div>
 
+    <!-- MudBlazor JS -->
+    <script src="/_content/MudBlazor/MudBlazor.min.js" defer></script>
+
     <!-- Blazor boot -->
-    <script src="_framework/blazor.webassembly.js"></script>
-    <script src="_content/MudBlazor/MudBlazor.min.js" defer></script>
+    <script src="/_framework/blazor.webassembly.js"></script>
 
     <!-- Service worker registration -->
-    <script>
-        if ('serviceWorker' in navigator && window.isSecureContext) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' });
-            });
-        }
-    </script>
+    <script src="/sw-register.js" defer></script>
 </body>
 </html>
