@@ -3,41 +3,32 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Volunteer Management System 2.0 </title>
     <base href="/" />
 
-    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#121212" />
 
     <!-- Icons -->
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" />
 
     <!-- Styles -->
-    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
-    <link rel="stylesheet" href="app.css" />
-    <link href="/VMS.styles.css" rel="stylesheet" />
-
-    <title>Volunteer Management System </title>
+    <link rel="stylesheet" href="/_content/MudBlazor/MudBlazor.min.css" />
+    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/VMS.styles.css" />
 </head>
 <body>
-    <!-- Blazor mounts here -->
     <div id="app">Loading…</div>
 
-    <!-- MudBlazor JS (only if you use its JS features; otherwise safe to keep) -->
-    <script src="_content/MudBlazor/MudBlazor.min.js" defer></script>
+    <!-- MudBlazor JS -->
+    <script src="/_content/MudBlazor/MudBlazor.min.js" defer></script>
 
     <!-- Blazor boot -->
-    <script src="_framework/blazor.webassembly.js"></script>
-    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="/_framework/blazor.webassembly.js"></script>
 
     <!-- Service worker registration -->
-    <script>
-        if ('serviceWorker' in navigator && window.isSecureContext) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' });
-            });
-        }
-    </script>
+    <script src="/sw-register.js" defer></script>
 </body>
 </html>
