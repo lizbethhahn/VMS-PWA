@@ -5,7 +5,7 @@ It is designed to work offline-first with a service worker, provide responsive p
 
 ---
 
-## 🚀 Features
+## Features
 
 - Blazor WebAssembly (standalone, offline-capable)
 - MudBlazor UI components
@@ -17,7 +17,7 @@ It is designed to work offline-first with a service worker, provide responsive p
 
 ---
 
-## 🧰 Requirements
+## Requirements
 
 Before building or running VMS locally, make sure your environment has the following:
 
@@ -33,7 +33,7 @@ Before building or running VMS locally, make sure your environment has the follo
 
 ---
 
-## ⚙️ Setup Instructions
+## Setup Instructions
 
 ### 1. Clone the repository and navigate into it
 
@@ -59,7 +59,7 @@ This starts the local development server (default `http://localhost:7118`).
 
 ---
 
-## 🧩 Packages Used
+## Packages Used
 
 | Package | Version | Description |
 |----------|----------|-------------|
@@ -69,7 +69,7 @@ This starts the local development server (default `http://localhost:7118`).
 
 ---
 
-## 📦 Build for Release
+## Build for Release
 
 ### Regular Release (Trimmed)
 
@@ -83,11 +83,11 @@ dotnet publish -c Release
 dotnet publish -c Release -p:RunAOTCompilation=true
 ```
 
-> ⚠️ Takes longer to build, but runs faster on clients.
+> Takes longer to build, but runs faster on clients.
 
 ---
 
-## 🌍 Testing Locally
+## Testing Locally
 
 ### Serve the published output
 
@@ -112,7 +112,7 @@ npx serve -l 5123
 
 ---
 
-## 🧱 PWA Notes
+## PWA Notes
 
 - The service worker (`service-worker.js`) handles caching for offline use.
 - Cache versioning is controlled by `CACHE_NAME` in the file (e.g., `vms-cache-v11`).
@@ -120,7 +120,7 @@ npx serve -l 5123
 
 ---
 
-## 📱 Testing Offline
+## Testing Offline
 
 1. Open DevTools → Application → Service Workers.
 2. Confirm `[SW] Boot v11` and `[SW] Active` appear in the Console.
@@ -128,7 +128,7 @@ npx serve -l 5123
 
 ---
 
-## 🧰 Optional Tools
+## Optional Tools
 
 | Tool | Use Case |
 |------|-----------|
@@ -138,7 +138,7 @@ npx serve -l 5123
 
 ---
 
-## 🧭 Troubleshooting
+## Troubleshooting
 
 | Symptom | Likely Cause | Fix |
 |----------|---------------|-----|
@@ -149,7 +149,7 @@ npx serve -l 5123
 
 ---
 
-## 🧑‍💻 License
+## License
 
 MIT License — feel free to use, modify, or fork this project.
 
